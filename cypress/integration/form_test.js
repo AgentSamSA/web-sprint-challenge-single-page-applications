@@ -5,6 +5,7 @@ describe("Users app", () => {
 
     const nameInput = () => cy.get("input[name='name']");
     const toppingsInput = () => cy.get("input[type='checkbox']");
+    const submitButton = () => cy.get(".submitBtn");
 
     it("can make sure tests work", () => {
         expect(1 + 1).to.equal(2);
@@ -14,6 +15,8 @@ describe("Users app", () => {
     it("should make sure DOM elements exist", () => {
         nameInput().should("exist");
         toppingsInput().should("exist");
+        submitButton().should("exist");
+        cy.contains("Add to Order");
     });
 
     it("can type a name into input", () => {
@@ -27,5 +30,19 @@ describe("Users app", () => {
         toppingsInput().first().check();
         toppingsInput().last().check();
         toppingsInput().should("have.value", "on")
+    });
+
+    it("can submit the order form", () => {
+        submitButton().should("be.disabled");
+        nameInput().type("Name");
+        submitButton().should("be.disabled");
+        cy.get("select").select("Medium").should("have.value", "Medium");
+        submitButton().should("be.disabled");
+        cy.get("input[type='radio']").check("red");
+        submitButton().should("be.not.disabled");
+        toppingsInput().first().check();
+        submitButton().should("be.not.disabled");
+        nameInput().clear();
+        submitButton().should("be.disabled");
     });
 });
