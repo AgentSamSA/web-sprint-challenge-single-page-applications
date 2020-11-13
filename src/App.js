@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Route, Link, Switch } from "react-router-dom";
 import axios from "axios";
 import * as yup from "yup";
+import styled from "styled-components";
 import Home from "./Home";
 import Form from "./Form";
 import schema from "./validation/formSchema";
@@ -45,19 +46,19 @@ const App = () => {
 
   const changeForm = (name, input) => {
     yup.reach(schema, name)
-    .validate(input)
-    .then(() => {
-      setFormErrors({
-        ...formErrors,
-        [name]: "",
+      .validate(input)
+      .then(() => {
+        setFormErrors({
+          ...formErrors,
+          [name]: "",
+        });
+      })
+      .catch((err) => {
+        setFormErrors({
+          ...formErrors,
+          [name]: err.errors[0],
+        });
       });
-    })
-    .catch((err) => {
-      setFormErrors({
-        ...formErrors,
-        [name]: err.errors[0],
-      });
-    });
     setFormValues({
       ...formValues,
       [name]: input,
@@ -119,17 +120,17 @@ const App = () => {
       </nav>
 
       <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
         <Route path={"/pizza"}>
           <Form
-          values={formValues}
-          toppings={toppings}
-          change={changeForm}
-          submit={submitOrder}
-          errors={formErrors}
-          disabled={disabled}/>
+            values={formValues}
+            toppings={toppings}
+            change={changeForm}
+            submit={submitOrder}
+            errors={formErrors}
+            disabled={disabled} />
+        </Route>
+        <Route exact path="/">
+          <Home />
         </Route>
       </Switch>
     </div>
