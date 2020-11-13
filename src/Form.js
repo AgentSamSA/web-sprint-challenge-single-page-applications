@@ -1,12 +1,10 @@
 import React from "react";
 
-const toppings = ["Pepperoni", "Sausage", "Grilled Chicken", "Ground Beef", "Salami", "Bacon", "Onion", "Green Pepper", "Artichoke", "Spinach", "Tomato", "Extra Cheese"];
-
 export default function Form(props) {
-    const { values, toppings, change, submit } = props;
+    const { values, toppings, change, submit, errors, disabled } = props;
 
     const onChange = (event) => {
-        const {value, name, type, checked} = event.target;
+        const { value, name, type, checked } = event.target;
         const updatedValue = type === "checkbox" ? checked : value;
         change(name, updatedValue);
     }
@@ -23,17 +21,21 @@ export default function Form(props) {
 
             <h2>Build Your Own Pizza</h2>
 
-            <label>Name for the Order
+            <div>
+                <label>Name for the Order:</label>
+                <p>{errors.name}</p>
                 <input
                     type="text"
                     name="name"
                     value={values.name}
                     onChange={onChange}
                 />
-            </label>
+            </div>
+
             <div>
                 <h2>Choice of Size</h2>
                 <p>Required</p>
+                <p>{errors.size}</p>
                 <select value={values.size} name="size" onChange={onChange}>
                     <option value="">Select</option>
                     <option value="Small" name="small">Small - 10"</option>
@@ -46,6 +48,7 @@ export default function Form(props) {
             <div>
                 <h2>Choice of Sauce</h2>
                 <p>Required</p>
+                <p>{errors.sauce}</p>
 
                 <label>Classic Red
                     <input
@@ -83,7 +86,7 @@ export default function Form(props) {
                     <input
                         type="radio"
                         name="sauce"
-                        value="red"
+                        value="bbq"
                         checked={values.sauce === "bbq"}
                         onChange={onChange}
                     />
@@ -93,10 +96,10 @@ export default function Form(props) {
 
             <div>
                 <h2>Add Toppings</h2>
-                <p>Choose up to 10</p>
+                <p>Choose as many as you'd like!</p>
 
                 <div>
-                    {toppings.forEach(topping => {
+                    {toppings.map(topping => {
                         return (
                             <label>{topping}
                                 <input
@@ -124,7 +127,7 @@ export default function Form(props) {
                 />
             </div>
 
-            <button>Place Order</button>
+            <button disabled={disabled}>Add to Order</button>
         </form>
     );
 }

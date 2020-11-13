@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Link, Switch } from "react-router-dom";
+import axios from "axios";
+import * as yup from "yup";
 import Home from "./Home";
 import Form from "./Form";
+import schema from "./validation/formSchema";
 
 const toppings = ["Pepperoni", "Sausage", "Chicken", "Beef", "Salami", "Bacon", "Onion", "Peppers", "Artichoke", "Spinach", "Tomato", "Cheese"];
 
@@ -24,13 +27,37 @@ const initialFormValues = {
   instructions: "",
 }
 
+const initialFormErrors = {
+  name: "",
+  size: "",
+  sauce: "",
+}
+
 const initialOrders = [];
+
+const initialDisabled = true;
 
 const App = () => {
   const [orders, setOrders] = useState(initialOrders);
   const [formValues, setFormValues] = useState(initialFormValues);
+  const [formErrors, setFormErrors] = useState(initialFormErrors);
+  const [disabled, setDisabled] = useState(initialDisabled);
 
   const changeForm = (name, input) => {
+    yup.reach(schema, name)
+    .validate(input)
+    .then(() => {
+      setFormErrors({
+        ...formErrors,
+        [name]: "",
+      });
+    })
+    .catch((err) => {
+      setFormErrors({
+        ...formErrors,
+        [name]: err.errors[0],
+      });
+    });
     setFormValues({
       ...formValues,
       [name]: input,
@@ -56,8 +83,29 @@ const App = () => {
       cheese: formValues.cheese,
       instructions: formValues.instructions,
     }
-    setOrders([...orders, newOrder]);
+    postNewOrder(newOrder);
   }
+
+  const postNewOrder = newOrder => {
+    axios
+      .post("https://reqres.in/api/orders", newOrder)
+      .then(res => {
+        console.log(res.data);
+        setOrders([res.data, ...orders]);
+        console.log(orders);
+        setFormValues(initialFormValues);
+      })
+      .catch(err => {
+        console.log("something went wrong!", err);
+        setFormValues(initialFormValues);
+      });
+  }
+
+  useEffect(() => {
+    schema.isValid(formValues).then(valid => {
+      setDisabled(!valid);
+    });
+  }, [formValues]);
 
   return (
     <div>
@@ -79,7 +127,9 @@ const App = () => {
           values={formValues}
           toppings={toppings}
           change={changeForm}
-          submit={submitOrder}/>
+          submit={submitOrder}
+          errors={formErrors}
+          disabled={disabled}/>
         </Route>
       </Switch>
     </div>
